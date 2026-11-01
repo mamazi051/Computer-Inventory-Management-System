@@ -1,0 +1,243 @@
+
+# Computer Inventory Management System
+
+FILE_NAME = "inventory.txt"
+
+# Read products from file
+def load_products():
+    products = []
+
+    try:
+        with open(FILE_NAME, "r") as file:
+            lines = file.readlines()
+
+            for line in lines:
+                data = line.strip().split(",")
+
+                if len(data) == 4:
+                    product = {
+                        "id": data[0],
+                        "name": data[1],
+                        "price": float(data[2]),
+                        "quantity": int(data[3])
+                    }
+
+                    products.append(product)
+
+    except FileNotFoundError:
+        pass
+
+    return products
+
+
+# Save products in file
+def save_products(products):
+    with open(FILE_NAME, "w") as file:
+        for product in products:
+            line = (
+                f"{product['id']},"
+                f"{product['name']},"
+                f"{product['price']},"
+                f"{product['quantity']}\n"
+            )
+
+            file.write(line)
+
+
+# Add a new product
+def add_product(products):
+    product_id = input("Enter product ID: ")
+
+    for product in products:
+        if product["id"] == product_id:
+            print("This ID already exists!")
+            return
+
+    name = input("Enter product name: ")
+
+    try:
+        price = float(input("Enter price: "))
+        quantity = int(input("Enter quantity: "))
+
+        if price <= 0 or quantity < 0:
+            print("Invalid price or quantity!")
+            return
+
+    except ValueError:
+        print("Please enter valid numbers!")
+        return
+
+    product = {
+        "id": product_id,
+        "name": name,
+        "price": price,
+        "quantity": quantity
+    }
+
+    products.append(product)
+    save_products(products)
+
+    print("Product added successfully!")
+
+
+# Show all products
+def show_products(products):
+    if len(products) == 0:
+        print("No products found!")
+        return
+
+    print("\n--- Product List ---")
+
+    for product in products:
+        print(
+            f"ID: {product['id']} | "
+            f"Name: {product['name']} | "
+            f"Price: {product['price']} | "
+            f"Quantity: {product['quantity']}"
+        )
+
+
+# Search for a product
+def search_product(products):
+    product_id = input("Enter product ID: ")
+
+    for product in products:
+        if product["id"] == product_id:
+            print("Product found:")
+            print(product)
+            return
+
+    print("Product not found!")
+
+
+# Increase product quantity
+def increase_stock(products):
+    product_id = input("Enter product ID: ")
+
+    for product in products:
+        if product["id"] == product_id:
+
+            try:
+                amount = int(input("Enter amount: "))
+
+                if amount <= 0:
+                    print("Amount must be positive!")
+                    return
+
+                product["quantity"] += amount
+                save_products(products)
+
+                print("Stock increased successfully!")
+                return
+
+            except ValueError:
+                print("Invalid amount!")
+                return
+
+    print("Product not found!")
+
+
+# Sell a product
+def sell_product(products):
+    product_id = input("Enter product ID: ")
+
+    for product in products:
+        if product["id"] == product_id:
+
+            try:
+                amount = int(input("Enter sell quantity: "))
+
+                if amount <= 0:
+                    print("Amount must be positive!")
+                    return
+
+                if amount > product["quantity"]:
+                    print("Not enough stock!")
+                    return
+
+                product["quantity"] -= amount
+                total_price = amount * product["price"]
+
+                save_products(products)
+
+                print("Sale completed successfully!")
+                print(f"Total price: {total_price}")
+
+                return
+
+            except ValueError:
+                print("Invalid quantity!")
+                return
+
+    print("Product not found!")
+
+
+# Calculate total inventory value
+def calculate_inventory_value(products):
+    total = 0
+
+    for product in products:
+        total += product["price"] * product["quantity"]
+
+    print(f"Total inventory value: {total}")
+
+
+# Sort products by price
+def sort_products(products):
+    sorted_products = sorted(
+        products,
+        key=lambda product: product["price"]
+    )
+
+    print("\n--- Products Sorted By Price ---")
+
+    for product in sorted_products:
+        print(
+            f"{product['name']} - "
+            f"{product['price']}"
+        )
+
+
+# Main program
+products = load_products()
+
+while True:
+    print("\n===== COMPUTER STORE =====")
+    print("1. Add Product")
+    print("2. Show Products")
+    print("3. Search Product")
+    print("4. Increase Stock")
+    print("5. Sell Product")
+    print("6. Inventory Value")
+    print("7. Sort Products By Price")
+    print("8. Exit")
+
+    choice = input("Choose an option: ")
+
+    if choice == "1":
+        add_product(products)
+
+    elif choice == "2":
+        show_products(products)
+
+    elif choice == "3":
+        search_product(products)
+
+    elif choice == "4":
+        increase_stock(products)
+
+    elif choice == "5":
+        sell_product(products)
+
+    elif choice == "6":
+        calculate_inventory_value(products)
+
+    elif choice == "7":
+        sort_products(products)
+
+    elif choice == "8":
+        print("Goodbye!")
+        break
+
+    else:
+        print("Invalid choice!")
